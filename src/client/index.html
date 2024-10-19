@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html data-theme="light">
+  <head>
+    <title>Realtime Country Rank App</title>
+  </head>
+  <body>
+   
+    <!-- Import dependencies -->
+    <!-- https://cdnjs.com/libraries/socket.io -->
+    <!-- https://cdnjs.com/libraries/Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.1/socket.io.min.js" integrity="sha512-gVG6WRMUYFaIdoocaxbqd02p3DUbhReTBWc7NTGB96i7vONrr7GuCZJHFFmkXEhpwilIWUnfRIMSlKaApwd/jg==" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.13/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script>
+      // Configure Tailwind and DaisyUI to use a light theme
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: '#1E3A8A',   // Custom primary color
+              secondary: '#9333EA', // Custom secondary color
+              accent: '#F59E0B',    // Custom accent color
+              neutral: '#3D4451',   // Custom neutral color
+            },
+            fontFamily: {
+              sans: ['Poppins', 'sans-serif'], // Custom font
+            },
+          },
+        },
+        daisyui: {
+          themes: [
+            {
+              mytheme: {
+                primary: '#1E3A8A',
+                secondary: '#9333EA',
+                accent: '#F59E0B',
+                neutral: '#3D4451',
+                'base-100': '#FFFFFF', // Set base to white for light theme
+                info: '#3ABFF8',
+                success: '#36D399',
+                warning: '#FBBD23',
+                error: '#F87272',
+              },
+            },
+            'light',  // Enforce light theme
+          ],
+        },
+      };
+    </script>   
+
+    <!-- The title -->
+    <h1 class="text-2xl mt-4 mb-2 font-semibold" style="text-align: center;">What is the best country in the world?</h1>
+
+    <!-- The canvas -->
+    <canvas id="voteChart" style="height:50vh; width:100vw"></canvas>
+
+    <!-- A container for dynamically generated buttons -->
+    <div id="buttonContainer" style="text-align: center;" class="flex flex-wrap justify-center mt-4"></div>
+
+    <script>
+      /* 
+      /*
+      /* CREATE BUTTON */    
+      // Function to create buttons dynamically
+      function createButtons(countries) {
+        const buttonContainer = document.getElementById("buttonContainer");
+        buttonContainer.innerHTML = ""; // Clear any existing buttons
+
+        // Loop through the candidates and create buttons dynamically
+        countries.forEach((candidate, index) => {
+          const button = document.createElement("button");
+          button.className = `btn btn-outline mx-2 my-4`
+          const hoverColor = candidate.color;
+
+          // Set up hover effects
+          button.onmouseover = () => {
+              button.style.backgroundColor = hoverColor; // Change to hover color
+              button.style.borderColor = hoverColor;
+              button.style.color = "#fff"; // Change text color to white for better contrast
+          };
+          
+          button.onmouseout = () => {
+              button.style.backgroundColor = ""; // Reset background color
+              button.style.borderColor = "";
+              button.style.color = ""; // Reset text color
+          };
+          button.textContent = candidate.label; // Set button text from API data
+          button.onclick = () => vote(candidate.id); // Attach the vote function with index
+          buttonContainer.appendChild(button); // Add the button to the container
+        });
+      }
+      
+      async function fetchCountry() {
+        try {
+          const response = await fetch("http://localhost:3000/country"); // Replace with your actual API URL
+          const country = await response.json();
+
+          // Create buttons based on fetched country
+          createButtons(country);
+
+        } catch (error) {
+          console.error("Failed to fetch candidates:", error);
+        }
+      }
+
+      // Call fetchCandidates on page load
+      fetchCountry();
+
+      /*
+      /* 
+      /* CREATE CANVAS */
+      // Initialize the canvas
+      const ctx = document.getElementById("voteChart").getContext("2d");
+
+      // Initialize the chart
+      const chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Candidates'],
+        },
+        options: {
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+        });
+
+      /* 
+      /* 
+      /* IMPLEMENT VOTE WITH WEBSOCKET */
+      // Connect to the server it's (Here you want to change the port if you changed it in the server)
+      /* const socket = io("http://192.168.1.4:80");
+
+      // On new vote update the chart
+      socket.on("update", (candidates) => {
+
+        // Convert the candidates object into an array
+        candidates = Object.entries(candidates);
+
+        // For each candidate
+        for (const [key, candidate] of candidates) {
+
+          // Update the vote if the candidate already exists if not create a new candidate and then update the vote
+          if(typeof chart.data.datasets[key] == "undefined" && chart.data.datasets.length < candidates.length ) {
+            chart.data.datasets.push({
+                  backgroundColor: candidate.color,
+                  borderColor: candidate.color,
+                  data: [candidate.votes],
+                  label: candidate.label
+              });
+          } else  if(typeof chart.data.datasets[key] != "undefined") {
+            chart.data.datasets[key].data = [candidate.votes];
+          }
+
+        }
+
+        // Update the chart
+        chart.update();
+      });
+
+      // Make a new vote (Remember this is not a safe way to do this)
+      function vote(index) {
+        socket.emit("vote", index);
+      } */
+
+      function vote(id) {
+        console.log(id)
+      }
+
+    </script>
+  </body>
+</html>
