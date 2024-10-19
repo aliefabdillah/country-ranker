@@ -24,4 +24,13 @@ export class CountryService {
       throw new UnprocessableEntityException();
     }
   }
+
+  async findAll() {
+    try {
+      return await this.prisma.country.findMany();
+    } catch (error) {
+      console.error(error);
+      throw new UnprocessableEntityException();
+    }
+  }
 }
