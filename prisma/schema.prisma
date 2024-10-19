@@ -17,5 +17,7 @@ model Country {
   id String @id @default(uuid())
   label String @unique
   votes Int @default(0)
-  color String 
+  color String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
