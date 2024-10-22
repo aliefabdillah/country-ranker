@@ -3,6 +3,7 @@ import {
   MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
+  OnGatewayInit,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
@@ -12,17 +13,24 @@ import { CountryService } from '../country.service';
 
 @WebSocketGateway(3001, { cors: true })
 export class CountryGateway
-  implements OnGatewayConnection, OnGatewayDisconnect
+  implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit
 {
   private readonly logger = new Logger();
   @WebSocketServer() server: Server;
 
   constructor(private readonly countryService: CountryService) {}
 
-  handleConnection(client: Socket) {
+  afterInit() {
+    this.logger.log('Web Gateway initialized');
+  }
+
+  async handleConnection(client: Socket) {
     const connectedClients = this.server.engine.clientsCount;
     this.logger.log(`Number of User Connected ${connectedClients}`);
     this.logger.log(`User Connected with ID: ${client.id}`);
+
+    const countryData = await this.countryService.findAll();
+    this.server.emit('country', countryData);
   }
 
   handleDisconnect(client: Socket) {

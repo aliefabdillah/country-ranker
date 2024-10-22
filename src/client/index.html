@@ -132,16 +132,16 @@
       /* 
       /* IMPLEMENT VOTE WITH WEBSOCKET */
       // Connect to the server it's (Here you want to change the port if you changed it in the server)
-      /* const socket = io("http://192.168.1.4:80");
+      const socket = io("http://localhost:3001");
 
       // On new vote update the chart
-      socket.on("update", (candidates) => {
+      socket.on("country", (candidates) => {
 
         // Convert the candidates object into an array
-        candidates = Object.entries(candidates);
+        // candidates = Object.entries(candidates);
 
         // For each candidate
-        for (const [key, candidate] of candidates) {
+        /* for (const [key, candidate] of candidates) {
 
           // Update the vote if the candidate already exists if not create a new candidate and then update the vote
           if(typeof chart.data.datasets[key] == "undefined" && chart.data.datasets.length < candidates.length ) {
@@ -155,21 +155,35 @@
             chart.data.datasets[key].data = [candidate.votes];
           }
 
-        }
+          
+
+        } */
+
+       candidates.forEach((candidate, index) => {
+         // Add candidate data to the chart
+         if (typeof chart.data.datasets[index] == "undefined" && chart.data.datasets.length < candidates.length) {
+           chart.data.datasets.push({
+             label: candidate.label,
+             backgroundColor: candidate.color,
+             borderColor: candidate.color,
+             data: [candidate.votes]
+           });
+         } else if(typeof chart.data.datasets[index] != "undefined") {
+            chart.data.datasets[index].data = [candidate.votes];
+            chart.data.datasets[index].label = candidate.label;
+            chart.data.datasets[index].backgroundColor = candidate.color;
+            chart.data.datasets[index].borderColor = candidate.color;
+         }
+       });
 
         // Update the chart
         chart.update();
       });
 
       // Make a new vote (Remember this is not a safe way to do this)
-      function vote(index) {
-        socket.emit("vote", index);
-      } */
-
       function vote(id) {
-        console.log(id)
+        socket.emit("vote", { id: id });
       }
-
     </script>
   </body>
 </html>
