@@ -26,7 +26,7 @@
 
 ## Description
 
-Web application for conducting country voting in real time. Country candidates are input directly by the user
+Web application for conducting country voting in real time. Country candidates can input directly by the user
 
 ## Tech Stack
 
