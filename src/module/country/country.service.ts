@@ -15,10 +15,10 @@ export class CountryService {
     };
 
     try {
-      const newCountry = await this.prisma.country.create({
+      await this.prisma.country.create({
         data,
       });
-      return newCountry;
+      return this.findAll();
     } catch (error) {
       console.error(error);
       throw new UnprocessableEntityException();

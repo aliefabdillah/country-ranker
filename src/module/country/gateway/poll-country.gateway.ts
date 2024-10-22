@@ -11,6 +11,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { CountryService } from '../country.service';
 import { PollGuard } from './poll.guard';
+import { ICreateCountry } from '../interface/country.interface';
 
 @WebSocketGateway(3001, { cors: true })
 export class CountryGateway
@@ -46,6 +47,16 @@ export class CountryGateway
     const countryData = await this.countryService.update(id);
 
     // send broadcase to all client
+    this.server.emit('country', countryData);
+  }
+
+  @SubscribeMessage('new-country')
+  async handleAddCountry(@MessageBody('label') label: string) {
+    const countryFields: ICreateCountry = {
+      label: label,
+    };
+    const countryData = await this.countryService.create(countryFields);
+
     this.server.emit('country', countryData);
   }
 }

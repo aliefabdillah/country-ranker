@@ -58,6 +58,19 @@
     <!-- A container for dynamically generated buttons -->
     <div id="buttonContainer" style="text-align: center;" class="flex flex-wrap justify-center mt-4"></div>
 
+     <!-- container for input text -->
+     <div class="flex justify-center">
+      <label class="form-control w-full max-w-xs">
+        <div class="label">
+          <span class="label-text">Add country</span>
+        </div>
+        <div class="flex flex-row space-x-2">
+          <input id=countryName type="text" placeholder="Type Country" class="input input-bordered w-full max-w-xs" />
+          <button id=addCountryBtn class="btn btn-primary">Add</button>
+        </div>
+      </label>
+     </div>
+
     <script>
       /* 
       /*
@@ -91,22 +104,6 @@
         });
       }
       
-      async function fetchCountry() {
-        try {
-          const response = await fetch("http://localhost:3000/country"); // Replace with your actual API URL
-          const country = await response.json();
-
-          // Create buttons based on fetched country
-          createButtons(country);
-
-        } catch (error) {
-          console.error("Failed to fetch candidates:", error);
-        }
-      }
-
-      // Call fetchCandidates on page load
-      fetchCountry();
-
       /*
       /* 
       /* CREATE CANVAS */
@@ -137,44 +134,23 @@
       // On new vote update the chart
       socket.on("country", (candidates) => {
 
-        // Convert the candidates object into an array
-        // candidates = Object.entries(candidates);
-
-        // For each candidate
-        /* for (const [key, candidate] of candidates) {
-
-          // Update the vote if the candidate already exists if not create a new candidate and then update the vote
-          if(typeof chart.data.datasets[key] == "undefined" && chart.data.datasets.length < candidates.length ) {
+        createButtons(candidates);
+        candidates.forEach((candidate, index) => {
+          // Add candidate data to the chart
+          if (typeof chart.data.datasets[index] == "undefined" && chart.data.datasets.length < candidates.length) {
             chart.data.datasets.push({
-                  backgroundColor: candidate.color,
-                  borderColor: candidate.color,
-                  data: [candidate.votes],
-                  label: candidate.label
-              });
-          } else  if(typeof chart.data.datasets[key] != "undefined") {
-            chart.data.datasets[key].data = [candidate.votes];
+              label: candidate.label,
+              backgroundColor: candidate.color,
+              borderColor: candidate.color,
+              data: [candidate.votes]
+            });
+          } else if(typeof chart.data.datasets[index] != "undefined") {
+              chart.data.datasets[index].data = [candidate.votes];
+              chart.data.datasets[index].label = candidate.label;
+              chart.data.datasets[index].backgroundColor = candidate.color;
+              chart.data.datasets[index].borderColor = candidate.color;
           }
-
-          
-
-        } */
-
-       candidates.forEach((candidate, index) => {
-         // Add candidate data to the chart
-         if (typeof chart.data.datasets[index] == "undefined" && chart.data.datasets.length < candidates.length) {
-           chart.data.datasets.push({
-             label: candidate.label,
-             backgroundColor: candidate.color,
-             borderColor: candidate.color,
-             data: [candidate.votes]
-           });
-         } else if(typeof chart.data.datasets[index] != "undefined") {
-            chart.data.datasets[index].data = [candidate.votes];
-            chart.data.datasets[index].label = candidate.label;
-            chart.data.datasets[index].backgroundColor = candidate.color;
-            chart.data.datasets[index].borderColor = candidate.color;
-         }
-       });
+        });
 
         // Update the chart
         chart.update();
@@ -183,6 +159,18 @@
       // Make a new vote (Remember this is not a safe way to do this)
       function vote(id) {
         socket.emit("vote", { id: id });
+      }
+
+      // add new country
+      document.getElementById('addCountryBtn').onclick = () => {
+        const label =  document.getElementById('countryName').value;
+
+        if (!label) {
+          alert("Please enter a country name!");
+          return;
+        }
+
+        socket.emit("new-country",  { label: label })
       }
     </script>
   </body>
