@@ -36,7 +36,7 @@ export class CountryService {
 
   async update(countryId: string) {
     try {
-      const updatedCountry = await this.prisma.country.update({
+      await this.prisma.country.update({
         where: { id: countryId },
         data: {
           votes: {
@@ -45,7 +45,7 @@ export class CountryService {
         },
       });
 
-      return updatedCountry;
+      return this.findAll();
     } catch (error) {
       console.log(error);
       throw new UnprocessableEntityException();
