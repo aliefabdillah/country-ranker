@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { Logger, UseGuards } from '@nestjs/common';
 import {
   MessageBody,
   OnGatewayConnection,
@@ -10,6 +10,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { CountryService } from '../country.service';
+import { PollGuard } from './poll.guard';
 
 @WebSocketGateway(3001, { cors: true })
 export class CountryGateway
@@ -39,10 +40,12 @@ export class CountryGateway
     this.logger.log(`Number of User Connected ${connectedClients}`);
   }
 
+  @UseGuards(PollGuard) // Poling Guard
   @SubscribeMessage('vote')
   async handleVoteEvent(@MessageBody('id') id: string) {
     const countryData = await this.countryService.update(id);
-    console.log(countryData);
+
+    // send broadcase to all client
     this.server.emit('country', countryData);
   }
 }
