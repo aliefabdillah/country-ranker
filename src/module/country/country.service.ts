@@ -33,4 +33,22 @@ export class CountryService {
       throw new UnprocessableEntityException();
     }
   }
+
+  async update(countryId: string) {
+    try {
+      const updatedCountry = await this.prisma.country.update({
+        where: { id: countryId },
+        data: {
+          votes: {
+            increment: 1,
+          },
+        },
+      });
+
+      return updatedCountry;
+    } catch (error) {
+      console.log(error);
+      throw new UnprocessableEntityException();
+    }
+  }
 }

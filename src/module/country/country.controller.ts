@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
 import { CountryService } from './country.service';
 import { CountryDto } from './dtos/country.dto';
 
@@ -14,5 +14,10 @@ export class CountryController {
   @Get()
   getCountry() {
     return this.countryService.findAll();
+  }
+
+  @Patch('/:id')
+  updateVotes(@Param('id') id: string) {
+    return this.countryService.update(id);
   }
 }
