@@ -27,7 +27,11 @@ export class CountryService {
 
   async findAll() {
     try {
-      return await this.prisma.country.findMany();
+      return await this.prisma.country.findMany({
+        orderBy: {
+          label: 'asc',
+        },
+      });
     } catch (error) {
       console.error(error);
       throw new UnprocessableEntityException();
